@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Argon2 Hash Generator (Client-Side)</title>
+    <script src="./argon2-bundled.min.js"></script>
+</head>
+<body>
+
+    <h1>Argon2 Hash Generator (Client-Side Demo)</h1>
+    <p style="color: red; font-weight: bold;">
+        Warning: This is for demonstration purposes only. For standard web authentication, password hashing should always be performed on the server-side.
+    </p>
+
+    <label for="password">Enter Password:</label>
+    <input type="text" id="passwordInput" value="admin123">
+    <br><br>
+    <button onclick="generateHash()">Generate Hash</button>
+
+    <h3>Result:</h3>
+    <pre id="output" style="word-wrap: break-word; white-space: pre-wrap; background-color: #f0f0f0; padding: 10px; border-radius: 5px;">Click the button to see the hash.</pre>
+
+    <script>
+        async function generateHash() {
+            const passwordInput = document.getElementById('passwordInput');
+            const outputElement = document.getElementById('output');
+            const password = passwordInput.value;
+
+            if (!password) {
+                outputElement.textContent = 'Please enter a password.';
+                return;
+            }
+
+            outputElement.textContent = 'Generating hash... This may take a moment.';
+
+            try {
+                const options = {
+                    pass: password,
+                    salt: window.crypto.getRandomValues(new Uint8Array(16)),
+                    time: 3,
+                    mem: 65536,
+                    parallelism: 1,
+                    type: argon2.ArgonType.Argon2id
+                };
+
+                const result = await argon2.hash(options);
+                const { hash, encoded } = result;
+                
+                console.log('Password:', password);
+                console.log('Encoded Hash:', encoded);
+                
+                outputElement.textContent = `Password: ${password}\n\nEncoded Hash:\n${encoded}`;
+
+            } catch (error) {
+                console.error('Error generating hash:', error);
+                outputElement.textContent = `Error: ${error.message}`;
+            }
+        }
+    </script>
+
+</body>
+</html>
